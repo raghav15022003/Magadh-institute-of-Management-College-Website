@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Result Verification Portal | Magadh Institute of Management</title>
+<meta name="description" content="Official Student Result Verification Portal — Magadh Institute of Management, Patna">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* MIM PATNA — RESULT VERIFICATION PORTAL (white + light red theme) */
+:root{
+  --bg:#F7F5F5; --card:#FFFFFF; --border:#EDE0E0;
+  --red:#C0392B; --red-dark:#A5301F; --green:#2E7D32; --blue-dark:#1D4ED8;
+  --danger:#DC2626; --danger-dark:#B91C1C; --text:#222222; --text-muted:#6B7280;
+  --font-display:'Sora', sans-serif; --font-body:'Poppins', sans-serif;
+  --radius-lg:18px; --radius-md:12px;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{ font-family:var(--font-body); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.55; }
+main{ max-width:860px; margin:0 auto; padding:40px 18px 70px; }
+
+.head-card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:0 6px 20px -10px rgba(0,0,0,0.08); padding:22px 26px;
+  display:flex; align-items:center; gap:18px; margin-bottom:22px;
+}
+.logo-circle{
+  width:52px; height:52px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg, var(--red), var(--red-dark));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:22px; color:#fff;
+  box-shadow:0 6px 16px -6px rgba(192,57,43,0.55);
+}
+.head-titles h1{ font-family:var(--font-display); font-size:clamp(16px,2.4vw,20px); font-weight:700; }
+.head-titles .h-sub{ font-size:13px; color:var(--red); font-weight:500; margin-top:2px; }
+.head-titles .h-meta{ font-size:12px; color:var(--text-muted); margin-top:3px; }
+
+.verify-card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:0 8px 26px -12px rgba(0,0,0,0.10); padding:34px clamp(20px,4vw,42px) 36px;
+}
+.verify-card h2{ font-family:var(--font-display); text-align:center; font-size:clamp(20px,3vw,26px); font-weight:700; }
+.verify-card .sub{ text-align:center; color:var(--text-muted); font-size:13.5px; margin-top:6px; margin-bottom:28px; }
+
+form#verify-form{ display:flex; flex-direction:column; gap:20px; max-width:460px; margin:0 auto; }
+.field{ display:flex; flex-direction:column; gap:7px; }
+.field label{ font-size:12.5px; font-weight:600; }
+.field input{
+  width:100%; padding:13px 14px; border:1px solid #DDD; border-radius:var(--radius-md);
+  background:#FAFAFA; color:var(--text); font-family:var(--font-body); font-size:14.5px;
+  transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.field input::placeholder{ color:#A3A3A3; }
+.field input:focus{ outline:none; border-color:var(--red); box-shadow:0 0 0 3px rgba(192,57,43,0.12); background:#fff; }
+.field.has-error input{ border-color:var(--danger); }
+.field-error{ font-size:12px; color:var(--danger); display:none; }
+.field.has-error .field-error{ display:block; }
+
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:14.5px; letter-spacing:.02em;
+  border:none; cursor:pointer; border-radius:var(--radius-md); padding:15px 20px; text-decoration:none;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:filter .2s ease, transform .15s ease, box-shadow .2s ease;
+}
+.btn:active{ transform:scale(.98); }
+.btn-verify{ background:linear-gradient(135deg, var(--red), var(--red-dark)); color:#fff; box-shadow:0 10px 24px -10px rgba(192,57,43,0.55); }
+.btn-verify:hover{ filter:brightness(1.05); }
+.btn-verify:disabled{ opacity:.7; cursor:progress; }
+
+.spinner{ width:15px; height:15px; border-radius:50%; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; animation:spin .7s linear infinite; display:none; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+.btn.loading .spinner{ display:inline-block; }
+.btn.loading .btn-label{ display:none; }
+
+.status-msg{ text-align:center; font-size:13.5px; font-weight:600; margin-top:2px; display:none; }
+.status-msg.success{ color:var(--green); display:block; }
+.status-msg.error{ color:var(--danger); display:block; }
+
+/* ---------- Result section (verify ke baad) ---------- */
+.result-section{ display:none; margin-top:30px; border-top:1px dashed var(--border); padding-top:26px; }
+.result-section.show{ display:block; }
+.result-title{ text-align:center; font-family:var(--font-display); font-size:16px; font-weight:700; }
+.result-reg{ text-align:center; font-size:13px; color:var(--text-muted); margin:2px 0 16px; }
+
+.actions-row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+.actions-row .btn{ flex:1; min-width:150px; }
+.btn-print{ background:linear-gradient(135deg,#43A047, var(--green)); color:#fff; box-shadow:0 8px 20px -10px rgba(46,125,50,0.5); }
+.btn-download{ background:linear-gradient(135deg,#3B82F6, var(--blue-dark)); color:#fff; box-shadow:0 8px 20px -10px rgba(37,99,235,0.5); }
+.btn-reset{ background:linear-gradient(135deg,#EF5350, var(--danger-dark)); color:#fff; box-shadow:0 8px 20px -10px rgba(220,38,38,0.5); }
+.btn-print:hover, .btn-download:hover, .btn-reset:hover{ filter:brightness(1.05); }
+
+.pdf-frame-wrap{ border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#EEE; }
+.pdf-frame-wrap iframe{ display:block; width:100%; height:78vh; min-height:480px; border:0; background:#fff; }
+.pdf-fallback{ text-align:center; font-size:12.5px; color:var(--text-muted); margin-top:10px; }
+.pdf-fallback a{ color:var(--red); font-weight:600; }
+
+.btn-home{
+  display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;
+  font-size:13px; font-weight:600; color:var(--red); text-decoration:none;
+  background:var(--card); border:1px solid var(--border); border-radius:999px; padding:8px 16px;
+  box-shadow:0 4px 12px -8px rgba(0,0,0,0.12); transition:background .2s ease, transform .15s ease;
+}
+.btn-home:hover{ background:#FDF1EF; }
+.btn-home:active{ transform:scale(.97); }
+
+footer{ max-width:860px; margin:30px auto 0; padding:0 18px; text-align:center; font-size:12px; color:var(--text-muted); }
+footer p{ margin-bottom:4px; }
+
+@media (max-width:520px){
+  .actions-row{ flex-direction:column; }
+  .pdf-frame-wrap iframe{ height:65vh; }
+}
+@media print{
+  body{ background:#fff; }
+  .head-card, .verify-card{ box-shadow:none; }
+  form#verify-form, footer, .actions-row, .pdf-fallback, .btn-home{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<main>
+
+  <a href="/" class="btn-home" id="btn-home">&#8592; Back to Home</a>
+  <a href="https://mimpatna.com/system/login.php" class="btn-home" target="_blank" rel="noopener">Admin Upload Panel</a>
+
+  <div class="head-card">
+    <div class="logo-circle">M</div>
+    <div class="head-titles">
+      <h1>MAGADH INSTITUTE OF MANAGEMENT</h1>
+      <div class="h-sub">Official Student Result Verification Portal</div>
+      <div class="h-meta">AICTE Approved &nbsp;•&nbsp; PGDM &nbsp;•&nbsp; MCA</div>
+    </div>
+  </div>
+
+  <div class="verify-card">
+    <h2>Student Result Verification</h2>
+    <p class="sub">Enter your Registration Number</p>
+
+    <form id="verify-form" autocomplete="off">
+      <div class="field" id="field-reg">
+        <label for="reg">Registration Number</label>
+        <input type="text" id="reg" name="reg" placeholder="2528612000" maxlength="20" required>
+        <div class="field-error">Please enter your registration number.</div>
+      </div>
+
+      <button type="submit" class="btn btn-verify" id="verify-btn">
+        <span class="spinner"></span>
+        <span class="btn-label">VERIFY RESULT</span>
+      </button>
+
+      <div class="status-msg" id="status-msg"></div>
+    </form>
+
+    <!-- Verify hone ke baad yahan result dikhega -->
+    <div class="result-section" id="result-section">
+      <div class="result-title">Your Result</div>
+      <div class="result-reg" id="result-reg"></div>
+
+      <div class="actions-row">
+        <button type="button" class="btn btn-print" id="btn-print">Print Result</button>
+        <a href="#" class="btn btn-download" id="btn-download">Download PDF</a>
+        <button type="button" class="btn btn-reset" id="btn-reset">Verify Another</button>
+      </div>
+
+      <div class="pdf-frame-wrap">
+        <iframe id="pdf-frame" title="Result PDF" src="about:blank"></iframe>
+      </div>
+      <p class="pdf-fallback">
+        Result nahi dikh raha? <a href="#" target="_blank" rel="noopener" id="btn-open">Naye tab mein kholo</a>
+      </p>
+    </div>
+  </div>
+
+  <footer>
+    <p>Magadh Institute of Management, Patna, Bihar — Examination Cell</p>
+    <p>© <span id="year"></span> MIM Patna. Powered by MIM ERP</p>
+  </footer>
+
+</main>
+
+<script>
+const form       = document.getElementById('verify-form');
+const verifyBtn  = document.getElementById('verify-btn');
+const statusMsg  = document.getElementById('status-msg');
+const regInput   = document.getElementById('reg');
+const fieldReg   = document.getElementById('field-reg');
+const resultSec  = document.getElementById('result-section');
+const resultReg  = document.getElementById('result-reg');
+const pdfFrame   = document.getElementById('pdf-frame');
+const downloadBtn= document.getElementById('btn-download');
+const openLink   = document.getElementById('btn-open');
+
+function clearResult(){
+  resultSec.classList.remove('show');
+  pdfFrame.src = 'about:blank';
+  resultReg.textContent = '';
+}
+
+regInput.addEventListener('input', ()=>{
+  const pos = regInput.selectionStart;
+  regInput.value = regInput.value.toUpperCase();
+  regInput.setSelectionRange(pos,pos);
+});
+
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+
+  fieldReg.classList.remove('has-error');
+  statusMsg.className = 'status-msg';
+  statusMsg.textContent = '';
+  clearResult();
+
+  const regVal = regInput.value.trim().toUpperCase();
+  if(!regVal){ fieldReg.classList.add('has-error'); return; }
+
+  verifyBtn.classList.add('loading');
+  verifyBtn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('reg', regVal);
+
+  fetch('verify.php', { method:'POST', body:fd })
+    .then(res => res.json())
+    .then(data => {
+      verifyBtn.classList.remove('loading');
+      verifyBtn.disabled = false;
+
+      if(data.success){
+        statusMsg.textContent = 'Verification Successful';
+        statusMsg.classList.add('success');
+
+        resultReg.textContent = 'Registration No: ' + data.reg;
+        downloadBtn.href = data.downloadUrl;
+        downloadBtn.setAttribute('download', data.fileName || '');
+        openLink.href = data.viewUrl;
+        pdfFrame.src = data.viewUrl;
+        resultSec.classList.add('show');
+        resultSec.scrollIntoView({ behavior:'smooth', block:'start' });
+      } else {
+        statusMsg.textContent = data.message || 'Result not found — Please check your Registration Number';
+        statusMsg.classList.add('error');
+      }
+    })
+    .catch(() => {
+      verifyBtn.classList.remove('loading');
+      verifyBtn.disabled = false;
+      statusMsg.textContent = 'Something went wrong. Please try again.';
+      statusMsg.classList.add('error');
+    });
+});
+
+document.getElementById('btn-print').addEventListener('click', ()=>{
+  try {
+    pdfFrame.contentWindow.focus();
+    pdfFrame.contentWindow.print();
+  } catch(err){
+    window.open(openLink.href, '_blank');   // fallback: naye tab mein kholo, wahan se print karo
+  }
+});
+
+document.getElementById('btn-reset').addEventListener('click', ()=>{
+  form.reset();
+  fieldReg.classList.remove('has-error');
+  statusMsg.className = 'status-msg';
+  statusMsg.textContent = '';
+  clearResult();
+  window.scrollTo({ top:0, behavior:'smooth' });
+  regInput.focus();
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
